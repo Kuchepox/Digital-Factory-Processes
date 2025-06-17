@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Factory Processes | Interactive Report</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm & Earthy -->
+    <!-- Application Structure Plan: The SPA is designed as a top-down narrative journey. A sticky navigation bar allows users to jump between the three core phases (Digital Factory Initiation Framework, Digital Information Management Implementation, End-to-End Digital Operational Enablement), which are presented as distinct, full-width sections. This linear, scroll-based flow is intuitive and guides the user through the factory lifecycle chronologically. Key interactions include hovering over charts for details and clicking on process nodes in a flowchart to dynamically display contextual information. This structure was chosen to transform the dense, text-based report into an engaging, self-paced exploration, making the complex inter-process relationships digestible, while accommodating new data and visual requirements. -->
+    <!-- Visualization & Content Choices: 
+        1. Report Info: Phase 1 Foundational Concepts (Standard Data Libraries, Efficient Manufacturing, Logistics & Deployment). Goal: Compare (importance/focus). Viz: Radar Chart (Chart.js). Interaction: Tooltips on hover. Justification: A Radar chart visually represents the equal importance and comprehensive coverage of these foundational pillars, which is a core concept of the Digital Factory Initiation Framework. Renders to Canvas.
+        2. Report Info: BIM Benefits for Construction & Operations (Cost Savings, Time Improvement, Quality Improvement). Goal: Compare (contribution across phases). Viz: Stacked Bar Chart (Chart.js). Interaction: Tooltips on hover. Justification: A stacked bar chart clearly shows the contribution of BIM benefits across different metrics and phases (Construction vs. Operations), using quantitative data for clarity. Renders to Canvas.
+        3. Report Info: Digital Twin Commissioning Process. Goal: Change (process). Viz: HTML/CSS Timeline. Interaction: Static visual flow. Justification: A timeline is the most direct and clear way to represent the sequential nature of the commissioning process, from virtual simulation to physical build. Implemented with styled HTML/CSS.
+        4. Report Info: DFM & Interlinked Processes. Goal: Organize/Relationships. Viz: Interactive HTML/CSS Flowchart. Interaction: Clicking on a process node dynamically displays its description. Justification: A flowchart is essential for showing the complex hub-and-spoke relationship between End-to-End Digital Operational Enablement and its five key sub-processes. The visual has been improved with clearer connections and node styling. The click-to-reveal interaction makes a large amount of text manageable and user-driven. Implemented with styled HTML/CSS.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F5F1E9;
+            color: #6D5D4D;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 450px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+        .nav-link {
+            transition: all 0.3s ease;
+            border-bottom: 2px solid transparent;
+        }
+        .nav-link.active, .nav-link:hover {
+            color: #B28461;
+            border-bottom-color: #B28461;
+        }
+        .card {
+            background-color: #FFFFFF;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            border: 1px solid #E7E0D2;
+        }
+        .process-node {
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+        }
+        .process-node:hover, .process-node.active {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(178, 132, 97, 0.5);
+            border-color: #B28461;
+        }
+        .flow-connector {
+            position: absolute;
+            background-color: #D3C5B2;
+            z-index: 0;
+        }
+        .flow-h {
+            height: 2px;
+        }
+        .flow-v {
+            width: 2px;
+        }
+    </style>
+</head>
+<body>
+
+    <header id="main-header" class="sticky top-0 z-50 bg-white/80 backdrop-blur-lg shadow-sm">
+        <nav class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex-shrink-0">
+                    <h1 class="text-xl font-bold text-[#6D5D4D]">Digital Factory Lifecycle</h1>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#preparation" class="nav-link px-3 py-2 rounded-md text-sm font-semibold">1. Initiation</a>
+                        <a href="#construction" class="nav-link px-3 py-2 rounded-md text-sm font-semibold">2. Implementation</a>
+                        <a href="#operations" class="nav-link px-3 py-2 rounded-md text-sm font-semibold">3. Operational Enablement</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section id="hero" class="py-20 bg-[#D3C5B2]/20">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                <h2 class="text-4xl md:text-5xl font-bold text-[#6D5D4D] tracking-tight">Transforming Battery Manufacturing</h2>
+                <p class="mt-4 max-w-3xl mx-auto text-lg text-[#8E6E53]">This report outlines the pivotal role of our digitalization team, weaving a digital thread through the entire factory lifecycle to drive efficiency, quality, and innovation in a rapidly growing market.</p>
+            </div>
+        </section>
+
+        <section id="preparation" class="py-16 md:py-24">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12">
+                    <h3 class="text-base font-semibold text-[#B28461] tracking-wider uppercase">Phase 1: Digital Factory Initiation Framework</h3>
+                    <p class="mt-2 text-3xl font-bold text-[#6D5D4D] tracking-tight sm:text-4xl">Laying the Foundations for Digital Success</p>
+                    <p class="mt-4 max-w-2xl mx-auto text-lg text-[#8E6E53]">The success of every project is determined before it begins. This initial phase (Process 2.8.1.2) is dedicated to establishing a robust framework by leveraging past knowledge and creating standardized, reusable assets for maximum efficiency.</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                    <div class="card p-6 md:p-8">
+                        <h4 class="text-xl font-bold text-center mb-4">Pillars of the Initiation Framework</h4>
+                        <p class="text-center text-sm text-[#8E6E53] mb-4">Our approach rests on three equally important pillars, ensuring comprehensive coverage and a solid start for any project.</p>
+                        <div class="chart-container">
+                            <canvas id="prepRadarChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="prose max-w-none">
+                        <h4 class="text-xl font-bold mb-2">Key Concepts of the Digital Factory Initiation Framework</h4>
+                        <p class="mb-4">This framework consolidates critical concepts that accelerate project timelines, ensure consistent quality, and reduce costs through proven, repeatable solutions.</p>
+                         <div class="mt-6 p-6 bg-[#D3C5B2]/20 rounded-lg border border-dashed border-[#D3C5B2]">
+                            <ul class="space-y-4">
+                                <li class="flex items-start">
+                                    <span class="h-6 w-6 flex-shrink-0 flex items-center justify-center rounded-full bg-[#B28461]/20 text-[#B28461] font-bold mr-4">1</span>
+                                    <div><strong class="block">Standard Data Libraries and Modular Design Framework:</strong> Develop a library of standardized, interchangeable components (e.g., walls, floors, roofs, utility cores) that can be easily assembled and reconfigured. These modules adhere to universal dimensions to ensure compatibility and can be combined to scale up or down based on factory size or purpose. Customizable templates include configurable options for specific industry needs.</div>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="h-6 w-6 flex-shrink-0 flex items-center justify-center rounded-full bg-[#B28461]/20 text-[#B28461] font-bold mr-4">2</span>
+                                    <div><strong class="block">Efficient Manufacturing and Assembly Process:</strong> Build modules in a controlled environment (factory setting) to minimize costs, waste, and construction time on-site, applying lean manufacturing principles. Utilities and automation systems are integrated directly into modules during manufacturing for plug-and-play assembly.</div>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="h-6 w-6 flex-shrink-0 flex items-center justify-center rounded-full bg-[#B28461]/20 text-[#B28461] font-bold mr-4">3</span>
+                                     <div><strong class="block">Logistics and Deployment Strategy:</strong> Design modules with dimensions that comply with local transportation regulations for easy shipping. A system for rapid on-site assembly/disassembly, using bolted connections, cranes, or autonomous machinery, reduces downtime. Ensure flexibility to accommodate various terrains, climates, and local regulatory standards.</div>
+                                </li>
+                            </ul>
+                        </div>
+                        <h4 class="text-xl font-bold mt-8 mb-2">Linked Processes</h4>
+                        <p class="mb-4">This foundational phase is further strengthened by integrating insights from ongoing learning processes:</p>
+                        <ul class="list-disc list-inside text-[#8E6E53] space-y-1">
+                            <li>Process 2.2.14: Project Lessons Learned</li>
+                            <li>Process 2.6.5: Construction Lessons Learned</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="construction" class="py-16 md:py-24 bg-[#D3C5B2]/20">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                 <div class="text-center mb-12">
+                    <h3 class="text-base font-semibold text-[#B28461] tracking-wider uppercase">Phase 2: Digital Information Management Implementation</h3>
+                    <p class="mt-2 text-3xl font-bold text-[#6D5D4D] tracking-tight sm:text-4xl">Digital Oversight from Blueprint to Build</p>
+                    <p class="mt-4 max-w-2xl mx-auto text-lg text-[#8E6E53]">During the active project phase (Process 2.8.2.2), our team acts as digital enablers and auditors, leveraging advanced tools to ensure designs are flawless and construction proceeds efficiently and accurately.</p>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                     <div class="card p-6 md:p-8 order-2 lg:order-1">
+                        <h4 class="text-xl font-bold text-center mb-4">BIM's Impact on Cost, Time, and Quality</h4>
+                        <p class="text-center text-sm text-[#8E6E53] mb-4">Building Information Modeling (BIM) extends its transformative value beyond construction, delivering significant improvements into operational phases as well. This chart illustrates its combined impact.</p>
+                        <div class="chart-container">
+                            <canvas id="bimStackedBarChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="prose max-w-none order-1 lg:order-2">
+                        <h4 class="text-xl font-bold mb-2">Digital Twins in Commissioning</h4>
+                        <p class="mb-4">Digital Twins revolutionize the commissioning process. By building and testing the entire production line in a virtual environment first, we identify and solve problems before they can cause delays or cost overruns on-site.</p>
+                        <div class="mt-6 relative border-l-2 border-dashed border-[#B28461] pl-8 space-y-8">
+                            <div class="relative">
+                                <div class="absolute -left-[33px] top-1 h-2 w-2 rounded-full bg-[#B28461]"></div>
+                                <h5 class="font-bold">1. Virtual Simulation</h5>
+                                <p class="text-sm">We model and simulate the entire sequence of operations, validating programming and identifying potential bottlenecks in a risk-free virtual setting.</p>
+                            </div>
+                            <div class="relative">
+                               <div class="absolute -left-[33px] top-1 h-2 w-2 rounded-full bg-[#B28461]"></div>
+                                <h5 class="font-bold">2. Proactive Validation</h5>
+                                <p class="text-sm">This virtual pre-commissioning allows us to validate every aspect of the production line, ensuring all systems work together as intended from day one.</p>
+                            </div>
+                            <div class="relative">
+                               <div class="absolute -left-[33px] top-1 h-2 w-2 rounded-full bg-[#B28461]"></div>
+                                <h5 class="font-bold">3. Accelerated Physical Build</h5>
+                                <p class="text-sm">With issues resolved upfront, physical construction and commissioning are dramatically faster, reducing time-to-market for new gigafactories.</p>
+                            </div>
+                        </div>
+                        <h4 class="text-xl font-bold mt-8 mb-2">Linked Processes</h4>
+                        <p class="mb-4">This phase integrates seamlessly with critical data and design management processes:</p>
+                        <ul class="list-disc list-inside text-[#8E6E53] space-y-1">
+                            <li>Process 2.2.13: Document Control</li>
+                            <li>Process 2.3.2.2: Plant Roombook Design Process</li>
+                            <li>Process 2.3.2.3: Plan BIM IE Design Process</li>
+                            <li>Process 2.3.3: Plant TUM Data Management Process</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="operations" class="py-16 md:py-24">
+             <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12">
+                    <h3 class="text-base font-semibold text-[#B28461] tracking-wider uppercase">Phase 3: End-to-End Digital Operational Enablement</h3>
+                    <p class="mt-2 text-3xl font-bold text-[#6D5D4D] tracking-tight sm:text-4xl">Sustaining Digital Efficiency in Operations</p>
+                    <p class="mt-4 max-w-2xl mx-auto text-lg text-[#8E6E53]">Once the factory is operational (Process 2.8.3.2), our focus shifts to continuous support, leveraging a central Digital Facility Management (DFM) system that connects and enhances all critical operational processes.</p>
+                </div>
+
+                <div class="lg:flex lg:space-x-12">
+                    <div class="lg:w-1/2">
+                        <h4 class="text-xl font-bold mb-4">Interactive Digital Facility Management (DFM) Flow</h4>
+                        <p class="mb-4">This diagram shows how our central DFM system acts as a hub, feeding data and insights to critical sub-processes, optimizing the factory's ongoing performance. <strong class="text-[#B28461]">Click on a process node to learn more about it.</strong></p>
+                        <div id="process-flow" class="relative mt-8 flex flex-col items-center p-4 min-h-[500px]">
+                            <!-- Digital Facility Management (DFM) - Main Node -->
+                            <div class="card p-4 w-64 text-center z-10 font-bold text-[#6D5D4D] absolute top-0 left-1/2 transform -translate-x-1/2">Digital Facility Management (DFM)</div>
+
+                            <!-- Main Vertical Line from DFM -->
+                            <div class="flow-connector flow-v w-0.5 h-16 bg-[#B28461] absolute top-[70px] left-1/2 transform -translate-x-1/2"></div>
+
+                            <!-- Horizontal Collector Line -->
+                            <div class="flow-connector flow-h w-full max-w-4xl h-0.5 bg-[#B28461] absolute top-[134px]"></div>
+
+                            <!-- Individual Process Nodes Grid Container -->
+                            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-y-12 gap-x-6 w-full max-w-4xl absolute top-[160px] pb-8">
+                                <!-- Node 1 -->
+                                <div class="flex flex-col items-center relative col-span-1">
+                                    <!-- Vertical line from Horizontal Collector to this Node -->
+                                    <div class="flow-connector flow-v w-0.5 h-8 bg-[#B28461] absolute top-0 left-1/2 transform -translate-x-1/2" style="height: 26px;"></div>
+                                    <div class="process-node card p-2 text-center text-xs font-semibold w-full min-w-[100px] max-w-[150px] mt-[26px]" data-id="p1">5.1.3 Factory Layout Adjustment</div>
+                                </div>
+                                <!-- Node 2 -->
+                                <div class="flex flex-col items-center relative col-span-1">
+                                    <div class="flow-connector flow-v w-0.5 bg-[#B28461] absolute top-0 left-1/2 transform -translate-x-1/2" style="height: 26px;"></div>
+                                    <div class="process-node card p-2 text-center text-xs font-semibold w-full min-w-[100px] max-w-[150px] mt-[26px]" data-id="p2">5.2.2 Process/Equip. Verification</div>
+                                </div>
+                                <!-- Node 3 -->
+                                <div class="flex flex-col items-center relative col-span-full md:col-start-2 md:col-end-3 lg:col-start-3 lg:col-end-4">
+                                    <div class="flow-connector flow-v w-0.5 bg-[#B28461] absolute top-0 left-1/2 transform -translate-x-1/2" style="height: 26px;"></div>
+                                    <div class="process-node card p-2 text-center text-xs font-semibold w-full min-w-[100px] max-w-[150px] mt-[26px]" data-id="p3">5.3.4.4 Line Stop & Restart Mgmt</div>
+                                </div>
+                                <!-- Node 4 -->
+                                <div class="flex flex-col items-center relative col-span-1">
+                                    <div class="flow-connector flow-v w-0.5 bg-[#B28461] absolute top-0 left-1/2 transform -translate-x-1/2" style="height: 26px;"></div>
+                                    <div class="process-node card p-2 text-center text-xs font-semibold w-full min-w-[100px] max-w-[150px] mt-[26px]" data-id="p4">5.4.3.1 Asset & Drawing Naming</div>
+                                </div>
+                                <!-- Node 5 -->
+                                <div class="flex flex-col items-center relative col-span-1">
+                                    <div class="flow-connector flow-v w-0.5 bg-[#B28461] absolute top-0 left-1/2 transform -translate-x-1/2" style="height: 26px;"></div>
+                                    <div class="process-node card p-2 text-center text-xs font-semibold w-full min-w-[100px] max-w-[150px] mt-[26px]" data-id="p5">5.7.1.1 Facility Maintenance</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="lg:w-1/2 mt-12 lg:mt-0">
+                         <div id="process-details" class="card p-6 min-h-[20rem] transition-all duration-300">
+                             <h5 id="details-title" class="text-lg font-bold text-[#6D5D4D]">Select a process to view details</h5>
+                             <p id="details-content" class="mt-2 text-[#8E6E53]">The information for the selected process will appear here. This interactive approach allows for focused exploration of how digitalization enhances each specific operational area within the factory.</p>
+                         </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+    </main>
+    
+    <footer class="bg-white py-12 mt-16">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <p class="text-2xl font-bold text-[#6D5D4D]">A Future-Proof Digital Ecosystem</p>
+            <p class="mt-2 text-[#8E6E53]">Our comprehensive strategy ensures a highly efficient, data-driven, and continuously optimized manufacturing environment.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            
+            const processData = {
+                p1: {
+                    title: '5.1.3 Factory Layout Adjustment',
+                    content: 'Digital tools and advanced simulations are used to visualize and refine physical factory layouts. By leveraging AI-driven analysis of 3D point cloud data, we can create automated digital twins of the plant, enabling faster, more accurate, and data-driven adjustments to optimize production flow and eliminate bottlenecks.'
+                },
+                p2: {
+                    title: '5.2.2 Process & Equipment Verification',
+                    content: 'Digital lab solutions and methodologies like Design of Experiments (DOE) are crucial for validating new equipment and procedures. These tools enhance data management, automate workflows, and allow for data-driven decisions, ensuring any new process is fully vetted and optimized before implementation.'
+                },
+                p3: {
+                    title: '5.3.4.4 Production Line Stop & Restart Management',
+                    content: 'Digital operator support systems provide real-time instructions and alerts. By detecting changes in machine status and analyzing historical data, these systems shorten downtimes, prevent stoppages by optimizing material flow, and simplify the management of all production tasks.'
+                },
+                p4: {
+                    title: '5.4.3.1 Asset & Drawing Naming Process',
+                    content: 'A standardized asset naming convention is fundamental to all digital efforts. By creating consistent, descriptive, and unique identifiers for every physical and digital asset, we streamline audits, facilitate data analysis, and eliminate confusion across the entire asset lifecycle.'
+                },
+                p5: {
+                    title: '5.7.1.1 Facility Maintenance Management',
+                    content: 'Computerized Maintenance Management Systems (CMMS) automate and organize all maintenance operations. These platforms enable predictive maintenance by forecasting needs, reducing equipment downtime, lowering costs, and ensuring peak performance and safety compliance for all factory assets.'
+                }
+            };
+            
+            const processNodes = document.querySelectorAll('.process-node');
+            const detailsTitle = document.getElementById('details-title');
+            const detailsContent = document.getElementById('details-content');
+
+            processNodes.forEach(node => {
+                node.addEventListener('click', () => {
+                    const processId = node.dataset.id;
+                    const data = processData[processId];
+                    
+                    detailsTitle.textContent = data.title;
+                    detailsContent.textContent = data.content;
+
+                    processNodes.forEach(n => n.classList.remove('active'));
+                    node.classList.add('active');
+                });
+            });
+
+            const sections = document.querySelectorAll('section[id]');
+            const navLinks = document.querySelectorAll('.nav-link');
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        navLinks.forEach(link => {
+                            link.classList.toggle('active', link.getAttribute('href').substring(1) === entry.target.id);
+                        });
+                    }
+                });
+            }, { rootMargin: "-50% 0px -50% 0px" });
+
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+
+            function wrapTextForChart(str, maxWidth) {
+                if (typeof str !== 'string' || str.length <= maxWidth) return str;
+                const words = str.split(' ');
+                let lines = [];
+                let currentLine = words[0];
+                for (let i = 1; i < words.length; i++) {
+                    if ((currentLine + " " + words[i]).length > maxWidth) {
+                        lines.push(currentLine);
+                        currentLine = words[i];
+                    } else {
+                        currentLine += " " + words[i];
+                    }
+                }
+                lines.push(currentLine);
+                return lines;
+            }
+            
+            const sharedTooltipConfig = {
+                callbacks: {
+                    title: function(tooltipItems) {
+                        const item = tooltipItems[0];
+                        let label = item.chart.data.labels[item.dataIndex];
+                        return Array.isArray(label) ? label.join(' ') : label;
+                    }
+                }
+            };
+
+            const prepRadarCtx = document.getElementById('prepRadarChart').getContext('2d');
+            new Chart(prepRadarCtx, {
+                type: 'radar',
+                data: {
+                    labels: [
+                        wrapTextForChart('Standard Data Libraries & Modular Design Framework', 16), 
+                        wrapTextForChart('Efficient Manufacturing & Assembly Process', 16), 
+                        wrapTextForChart('Logistics & Deployment Strategy', 16)
+                    ],
+                    datasets: [{
+                        label: 'Pillar Importance',
+                        data: [10, 10, 10],
+                        backgroundColor: 'rgba(178, 132, 97, 0.2)',
+                        borderColor: '#B28461',
+                        pointBackgroundColor: '#B28461',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: '#B28461'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: { color: '#D3C5B2' },
+                            grid: { color: '#E7E0D2' },
+                            pointLabels: { font: { size: 12 }, color: '#6D5D4D' },
+                            ticks: { display: false, beginAtZero: true, max: 12 }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: sharedTooltipConfig
+                    }
+                }
+            });
+
+            const bimStackedBarCtx = document.getElementById('bimStackedBarChart').getContext('2d');
+            new Chart(bimStackedBarCtx, {
+                type: 'bar',
+                data: {
+                    labels: [
+                        wrapTextForChart('Cost Savings', 16),
+                        wrapTextForChart('Time Improvement', 16),
+                        wrapTextForChart('Quality Improvement', 16)
+                    ],
+                    datasets: [
+                        {
+                            label: 'Construction Impact',
+                            data: [15, 20, 10], 
+                            backgroundColor: '#8E6E53',
+                            borderColor: '#FFFFFF',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Operations Impact',
+                            data: [10, 8, 12], 
+                            backgroundColor: '#B28461',
+                            borderColor: '#FFFFFF',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            stacked: true,
+                            grid: { display: false },
+                            ticks: { color: '#6D5D4D' }
+                        },
+                        y: {
+                            stacked: true,
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Percentage Impact (%)',
+                                color: '#6D5D4D'
+                            },
+                            ticks: { color: '#6D5D4D' }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 15,
+                                color: '#6D5D4D'
+                            }
+                        },
+                        tooltip: sharedTooltipConfig
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
